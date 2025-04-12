@@ -66,6 +66,19 @@
         }
     </style>
 </head>
+    <script>
+        function togglePassword() {
+            const passwordInput = document.getElementById('password');
+            const eyeIcon = document.getElementById('eye-icon');
+            const isHidden = passwordInput.type === 'password';
+
+            passwordInput.type = isHidden ? 'text' : 'password';
+            eyeIcon.src = isHidden
+                ? "{{ asset('images/eye.png') }}"
+                : "{{ asset('images/hidden.png') }}";
+        }
+    </script>
+
 <body>
 
     <div class="login-wrapper">
@@ -89,9 +102,14 @@
                     @enderror
                 </div>
 
-                <div class="mb-3">
+                <div class="mb-3 position-relative">
                     <label for="password" class="form-label">Password</label>
-                    <input type="password" name="password" id="password" class="form-control" required>
+                    <div class="input-group">
+                        <input type="password" name="password" id="password" class="form-control" required>
+                        <span class="input-group-text bg-white" style="cursor: pointer;" onclick="togglePassword()">
+                            <img id="eye-icon" src="{{ asset('images/hidden.png') }}" alt="Toggle Password" style="height: 20px;">
+                        </span>
+                    </div>
                     @error('password')
                         <small class="text-danger">{{ $message }}</small>
                     @enderror
