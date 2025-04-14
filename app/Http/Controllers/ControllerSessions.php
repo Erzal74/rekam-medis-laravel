@@ -54,8 +54,8 @@ class ControllerSessions extends Controller
 
         // Redirect sesuai role
         return $user->role === 'admin'
-            ? redirect('/admin')
-            : redirect('/dokter');
+            ? redirect('/admin/dashboard') // Perbaiki redirect ke /admin/dashboard
+            : redirect('/dokter/dashboard');
     }
 
     function logout()
