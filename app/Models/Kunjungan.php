@@ -1,26 +1,26 @@
-<?php
+<?php // Kunjungan.php
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class Kunjungan extends Model
 {
+    use HasFactory;
+
+    protected $table = 'kunjungans'; // Nama tabel di database
+
     protected $fillable = [
-        'pasien_id',
-        'dokter_id',
+        'pasien_id', // Foreign key ke tabel pasien
         'waktu_kunjungan',
-        'is_baru',
+        // Kolom lain yang relevan dengan kunjungan
     ];
 
-    public function pasien(): BelongsTo
+    // Definisikan relasi dengan model Pasien
+    public function pasien()
     {
-        return $this->belongsTo(Pasien::class);
-    }
-
-    public function dokter(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Pasien::class, 'pasien_id');
     }
 }
+

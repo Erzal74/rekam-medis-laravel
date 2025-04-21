@@ -115,18 +115,6 @@
                     @enderror
                 </div>
 
-                <div class="mb-3">
-                    <label for="role" class="form-label">Login sebagai</label>
-                    <select name="role" id="role" class="form-select" required>
-                        <option value="">-- Pilih Role --</option>
-                        <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
-                        <option value="dokter" {{ old('role') == 'dokter' ? 'selected' : '' }}>Dokter</option>
-                    </select>
-                    @error('role')
-                        <small class="text-danger">{{ $message }}</small>
-                    @enderror
-                </div>
-
                 <button type="submit" class="btn btn-primary w-100">Login</button>
             </form>
         </div>

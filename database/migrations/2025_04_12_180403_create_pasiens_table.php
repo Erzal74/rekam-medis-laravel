@@ -14,8 +14,15 @@ return new class extends Migration
         Schema::create('pasiens', function (Blueprint $table) {
             $table->id();
             $table->string('nama');
+            $table->string('tempat_lahir')->nullable();
             $table->date('tanggal_lahir')->nullable();
+            $table->date('tanggal_berkunjung')->nullable(); // Tambahkan kolom tanggal berkunjung
             $table->string('alamat')->nullable();
+            $table->string('no_hp')->nullable();
+            $table->enum('jenis_kelamin', ['Laki-laki', 'Perempuan'])->nullable();
+            $table->string('no_kk')->nullable();
+            $table->string('status')->nullable();
+            $table->string('foto_ktp')->nullable(); // Untuk menyimpan nama file foto KTP
             $table->timestamps();
         });
     }

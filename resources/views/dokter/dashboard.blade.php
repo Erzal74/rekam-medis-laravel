@@ -281,7 +281,7 @@
         <a href="#"><i class="fas fa-tachometer-alt me-2"></i> Dashboard</a>
         <a href="#"><i class="fas fa-calendar-alt me-2"></i> Jadwal Saya</a>
         <a href="#"><i class="fas fa-notes-medical me-2"></i> Catatan Medis</a>
-        <a href="#"><i class="fas fa-user-injured me-2"></i> Data Pasien</a>
+        <a href="#"><i class="fas fa-user-injured me-2"></i> Rekam Medis</a>
     </div>
 
     <div class="content-wrapper">
@@ -360,51 +360,6 @@
                     </div>
                 </div>
             </div>
-            <div class="content">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="info-box">
-                            <i class="fas fa-users"></i>
-                            <div>
-                                <h4>Total Pasien</h4>
-                                <p>{{ $totalPasien }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-box">
-                            <i class="fas fa-calendar-check"></i>
-                            <div>
-                                <h4>Total Kunjungan</h4>
-                                <p>{{ $totalKunjungan }}</p>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-box">
-                            <i class="fas fa-history"></i>
-                            <div>
-                                <h4>Riwayat Kunjungan</h4>
-                                <p>{{ count($riwayatKunjungan) }} Data</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="chart-container">
-                        <h5>Grafik Kunjungan</h5>
-                        <canvas id="grafikKunjungan"></canvas>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="chart-container">
-                        <h5>Riwayat Kunjungan</h5>
-                        <canvas id="riwayatKunjunganChart"></canvas>
-                    </div>
-                </div>
-            </div>
             <div class="info-box todo-list">
                 <h5>To-Do List</h5>
                 <form action="{{ route('dokter.todo.store') }}" method="POST" class="mb-3">
@@ -435,79 +390,44 @@
         </div>
 
     <script>
-        const grafikKunjunganCanvas = document.getElementById('grafikKunjungan').getContext('2d');
-    const grafikKunjunganChart = new Chart(grafikKunjunganCanvas, {
-        type: 'line',
-        data: {
-            labels: @json(array_column($grafikKunjungan, 'bulan')),
-            datasets: [{
-                label: 'Jumlah Kunjungan',
-                data: @json(array_column($grafikKunjungan, 'jumlah')),
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 2
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false,
-                }
-            }
+        // const jadwalKunjunganDiv = document.getElementById('jadwalKunjungan');
+        // const jadwalHariIni = [
+        //     { waktu: '09:00', pasien: 'Ahmad Wijaya' },
+        //     { waktu: '09:30', pasien: 'Siti Aminah' },
+        //     { waktu: '10:00', pasien: 'Budi Santoso' },
+        //     // ... data jadwal lainnya
+        // ];
+
+        // if (jadwalHariIni.length > 0) {
+        //     jadwalKunjunganDiv.innerHTML = ''; // Bersihkan pesan default
+        //     jadwalHariIni.forEach(item => {
+        //         const jadwalItem = document.createElement('div');
+        //         jadwalItem.classList.add('schedule-item');
+        //         jadwalItem.innerHTML = `<span>${item.waktu}</span> - <span>${item.pasien}</span>`;
+        //         jadwalKunjunganDiv.appendChild(jadwalItem);
+        //     });
+        // }
+
+        function tutupPeringatan(popupId) {
+            document.getElementById(popupId).style.display = 'none';
         }
-    });
 
-    const riwayatKunjunganCanvas = document.getElementById('riwayatKunjunganChart').getContext('2d');
-    const riwayatKunjunganChart = new Chart(riwayatKunjunganCanvas, {
-        type: 'bar',
-        data: {
-            labels: @json(array_column($riwayatKunjungan, 'bulan')),
-            datasets: [{
-                label: 'Riwayat Kunjungan',
-                data: @json(array_column($riwayatKunjungan, 'jumlah')),
-                backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                y: {
-                    beginAtZero: true
-                }
-            },
-            plugins: {
-                legend: {
-                    display: false,
-                }
-            }
+        function tutupPeringatan(popupId) {
+            document.getElementById(popupId).style.display = 'none';
         }
-    });
 
-    function showWelcomePopup() {
-        const popupOverlay = document.getElementById('popupOverlay');
-        const hasSeenPopup = localStorage.getItem('adminWelcomePopupShown');
+        document.addEventListener('DOMContentLoaded', function() {
+            const popupPeringatan = document.getElementById('popupPeringatan');
+            const popupSukses = document.getElementById('popupSukses');
 
-        if (!hasSeenPopup) {
-            popupOverlay.style.display = 'flex';
-            localStorage.setItem('adminWelcomePopupShown', 'true');
-        } else {
-            popupOverlay.style.display = 'none'; // Pastikan tidak muncul lagi jika sudah dilihat
-        }
-    }
+            @if ($errors->any())
+                popupPeringatan.style.display = 'block';
+            @endif
 
-    function closePopup() {
-        const popupOverlay = document.getElementById('popupOverlay');
-        popupOverlay.style.display = 'none';
-    }
-
-    // Munculkan pop-up saat halaman pertama kali dimuat setelah login
-    window.onload = showWelcomePopup;
+            @if (session('success'))
+                popupSukses.style.display = 'block';
+            @endif
+        });
     </script>
 </body>
 </html>

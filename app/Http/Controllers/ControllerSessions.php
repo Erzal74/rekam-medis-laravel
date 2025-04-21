@@ -19,11 +19,9 @@ class ControllerSessions extends Controller
         $request->validate([
             'username' => 'required',
             'password' => 'required',
-            'role'     => 'required',
         ], [
             'username.required' => 'Username wajib diisi',
             'password.required' => 'Password wajib diisi',
-            'role.required'     => 'Role wajib diisi',
         ]);
 
         // Cek apakah username ditemukan
@@ -42,19 +40,12 @@ class ControllerSessions extends Controller
                 ->withInput();
         }
 
-        // Cek role
-        if ($user->role !== $request->role) {
-            return redirect('/')
-                ->withErrors(['role' => 'Role tidak sesuai.'])
-                ->withInput();
-        }
-
         // Jika semua valid, login
         Auth::login($user);
 
         // Redirect sesuai role
         return $user->role === 'admin'
-            ? redirect('/admin/dashboard') // Perbaiki redirect ke /admin/dashboard
+            ? redirect('/admin') // Perbaiki redirect ke /admin/dashboard
             : redirect('/dokter/dashboard');
     }
 
