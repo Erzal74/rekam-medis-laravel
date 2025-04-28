@@ -10,6 +10,7 @@ class DoctorSchedule extends Model
     use HasFactory;
 
     protected $fillable = [
+        'id',
         'doctor_id',
         'date',
         'type',
@@ -20,9 +21,4 @@ class DoctorSchedule extends Model
         'date' => 'date', // Cast date column to Carbon instance
     ];
 
-    // Relationship to the Doctor model
-    public function doctor()
-    {
-        return $this->belongsTo(Doctor::class);
-    }
 }

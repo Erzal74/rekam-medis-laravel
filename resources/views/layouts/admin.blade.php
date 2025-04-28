@@ -201,10 +201,10 @@
 <body>
     <div class="sidebar">
         <h5>Menu</h5>
-        <a href="{{ route('admin.dashboard') }}" class="nav-link"><i class="fas fa-home me-2"></i> Home</a> {{-- Tambah class nav-link --}}
-        <a href="{{ route('admin.pasien.index') }}" class="nav-link"><i class="fas fa-user-plus me-2"></i> Data Pasien</a> {{-- Tambah class nav-link --}}
-        {{-- PERBAIKAN DI SINI: Link mengarah ke rute jadwal dokter --}}
-        <a href="{{ route('admin.schedules.index') }}" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Jadwal Dokter </a> {{-- Mengarah ke rute index jadwal --}}
+        <a href="{{ route('admin.dashboard') }}" class="nav-link"><i class="fas fa-home me-2"></i> Home</a>
+        <a href="{{ route('admin.pasien.index') }}" class="nav-link"><i class="fas fa-user-plus me-2"></i> Data Pasien</a>
+        {{-- PERBAIKAN DI SINI: Link mengarah ke rute jadwal dokter admin --}}
+        <a href="{{ route('admin.schedules.index') }}" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Jadwal Dokter </a>
     </div>
 
     <div class="content-wrapper">

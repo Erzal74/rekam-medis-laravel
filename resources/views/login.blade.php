@@ -91,14 +91,14 @@
                 <div class="alert alert-danger">{{ session('error') }}</div>
             @endif
 
-            <form method="POST" action="{{ url('/') }}">
+            <form method="POST" action="{{ route('login') }}">
                 @csrf
 
                 <div class="mb-3">
                     <label for="username" class="form-label">Username</label>
                     <input type="text" name="username" id="username" class="form-control" value="{{ old('username') }}" required autofocus>
                     @error('username')
-                        <small class="text-danger">{{ $message }}</small>
+                        <span>{{ $message }}</span>
                     @enderror
                 </div>
 
@@ -111,7 +111,7 @@
                         </span>
                     </div>
                     @error('password')
-                        <small class="text-danger">{{ $message }}</small>
+                        <span>{{ $message }}</span>
                     @enderror
                 </div>
 

@@ -2,17 +2,23 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Todo;
+use App\Models\Kunjungan;
+use App\Models\Doctor; // Tambahkan baris ini
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Kunjungan;
-use App\Models\Todo;
 use Carbon\Carbon;
 
-class DokterDashboardController extends Controller
+class DokterController extends Controller
 {
     public function index()
     {
-        $dokter = Auth::user();
+        $dokter = Doctor::where('user_id', Auth::id())->first();
+
+        if (!$dokter) {
+            return redirect()->route('home')->with('error', 'Profil dokter tidak ditemukan.');
+        }
+
         $hariIni = Carbon::today();
 
         $jumlahPasienHariIni = Kunjungan::where('dokter_id', $dokter->id)
@@ -40,7 +46,7 @@ class DokterDashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        return view('dokter.dashboard', compact(
+        return view('dokter.dashboard_content', compact(
             'dokter',
             'jumlahPasienHariIni',
             'jumlahPasienLamaHariIni',
@@ -48,6 +54,21 @@ class DokterDashboardController extends Controller
             'jadwalKunjunganHariIni',
             'todoList'
         ));
+    }
+
+    public function jadwalSaya()
+    {
+        return view('dokter.jadwal_saya');
+    }
+
+    public function catatanMedis()
+    {
+        return view('dokter.catatan_medis');
+    }
+
+    public function rekamMedis()
+    {
+        return view('dokter.rekam_medis');
     }
 
     public function storeTodo(Request $request)
@@ -103,4 +124,6 @@ class DokterDashboardController extends Controller
 
         return redirect()->route('dokter.dashboard')->with('success', 'Catatan berhasil dihapus.');
     }
+
+    // Anda bisa menambahkan fungsi-fungsi lain terkait dokter di sini
 }

@@ -19,8 +19,6 @@ class Pasien extends Model
         'alamat',
         'no_hp',
         'jenis_kelamin',
-        'no_kk',
         'status',
-        'foto_ktp',
     ];
 }

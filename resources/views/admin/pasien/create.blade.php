@@ -61,21 +61,22 @@
                     @error('jenis_kelamin') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
                 <div class="col-md-6">
-                    <label for="no_kk" class="form-label">No. Kartu Keluarga</label>
-                    <input type="text" name="no_kk" class="form-control @error('no_kk') is-invalid @enderror" value="{{ old('no_kk') }}">
-                    @error('no_kk') <div class="invalid-feedback">{{ $message }}</div> @enderror
-                </div>
-                <div class="col-md-6">
                     <label for="status" class="form-label">Status</label>
                     <input type="text" name="status" class="form-control @error('status') is-invalid @enderror" value="{{ old('status') }}">
                     @error('status') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                <div class="col-md-6">
+                {{-- Hapus bagian No. KK --}}
+                {{-- <div class="col-md-6">
+                    <label for="no_kk" class="form-label">No. Kartu Keluarga</label>
+                    <input type="text" name="no_kk" class="form-control @error('no_kk') is-invalid @enderror" value="{{ old('no_kk') }}">
+                    @error('no_kk') <div class="invalid-feedback">{{ $message }}</div> @enderror
+                </div> --}}
+                {{-- Hapus bagian Upload Foto KTP --}}
+                {{-- <div class="col-md-6">
                     <label for="foto_ktp" class="form-label">Upload Foto KTP</label>
                     <input type="file" name="foto_ktp" class="form-control @error('foto_ktp') is-invalid @enderror" accept="image/*">
                     @error('foto_ktp') <div class="invalid-feedback">{{ $message }}</div> @enderror
                 </div>
-                {{-- Shifted foto_ktp to take the empty space --}}
                 <div class="col-md-6">
                     {{-- Placeholder or can be left empty --}}
                 </div>

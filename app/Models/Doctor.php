@@ -2,22 +2,21 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Doctor extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
-        'name',
-        'specialization',
-        'phone_number',
-        'email',
-        'address',
-        // tambahkan kolom lain di tabel doctors
+        'nama',
+        'user_id', // Tambahkan user_id ke sini
+        // Tambahkan atribut lain yang bisa diisi
     ];
 
-    public function schedules(): HasMany
+    public function user()
     {
-        return $this->hasMany(DoctorSchedule::class, 'doctor_id');
+        return $this->belongsTo(User::class);
     }
 }

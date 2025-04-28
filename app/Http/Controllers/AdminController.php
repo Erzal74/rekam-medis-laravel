@@ -95,19 +95,18 @@ class AdminController extends Controller
             'alamat' => 'required',
             'no_hp' => 'required',
             'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
-            'no_kk' => 'nullable',
             'status' => 'nullable',
-            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // 'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Hapus validasi foto_ktp
         ]);
 
-        $pasienData = $request->except('foto_ktp');
+        $pasienData = $request->all(); // Ambil semua input
 
-        if ($request->hasFile('foto_ktp')) {
-            $fotoKTP = $request->file('foto_ktp');
-            $namaFile = time() . '_' . $fotoKTP->getClientOriginalName();
-            $fotoKTP->storeAs('public/foto_ktp', $namaFile);
-            $pasienData['foto_ktp'] = $namaFile;
-        }
+        // if ($request->hasFile('foto_ktp')) { // Hapus bagian upload foto_ktp
+        //     $fotoKTP = $request->file('foto_ktp');
+        //     $namaFile = time() . '_' . $fotoKTP->getClientOriginalName();
+        //     $fotoKTP->storeAs('public/foto_ktp', $namaFile);
+        //     $pasienData['foto_ktp'] = $namaFile;
+        // }
 
         Pasien::create($pasienData);
 
@@ -137,22 +136,11 @@ class AdminController extends Controller
             'alamat' => 'required',
             'no_hp' => 'required',
             'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
-            'no_kk' => 'nullable',
             'status' => 'nullable',
-            'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            // 'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Hapus validasi foto_ktp
         ]);
 
-        $pasienData = $request->except('foto_ktp');
-
-        if ($request->hasFile('foto_ktp')) {
-            if ($pasien->foto_ktp) {
-                Storage::delete('public/foto_ktp/' . $pasien->foto_ktp);
-            }
-            $fotoKTP = $request->file('foto_ktp');
-            $namaFile = time() . '_' . $fotoKTP->getClientOriginalName();
-            $fotoKTP->storeAs('public/foto_ktp', $namaFile);
-            $pasienData['foto_ktp'] = $namaFile;
-        }
+        $pasienData = $request->all(); // Ambil semua input
 
         $pasien->update($pasienData);
 
@@ -165,9 +153,6 @@ class AdminController extends Controller
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
-        if ($pasien->foto_ktp) {
-            Storage::delete('public/foto_ktp/' . $pasien->foto_ktp);
-        }
 
         $pasien->delete();
 
@@ -179,88 +164,13 @@ class AdminController extends Controller
      */
     public function scheduleIndex()
     {
-        // Pengecekan role DIKEMBALIKAN
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
+        // Ambil semua jadwal dokter, diurutkan terbaru dengan pagination
         $schedules = DoctorSchedule::with('doctor')->latest()->paginate(10);
         return view('admin.schedules.index', compact('schedules'));
     }
 
-    public function scheduleCreate()
-    {
-        // Pengecekan role DIKEMBALIKAN
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        }
-        $doctors = Doctor::orderBy('name')->get();
-        return view('admin.schedules.create', compact('doctors'));
-    }
-
-    public function scheduleStore(Request $request)
-    {
-        // Pengecekan role DIKEMBALIKAN
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        }
-        $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
-            'date' => 'required|date',
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        DoctorSchedule::create($request->all());
-
-        return redirect()->route('admin.schedules.index')
-                        ->with('success', 'Jadwal dokter berhasil ditambahkan.');
-    }
-
-    public function scheduleEdit(DoctorSchedule $schedule)
-    {
-        // Pengecekan role DIKEMBALIKAN
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        }
-        $doctors = Doctor::orderBy('name')->get();
-        return view('admin.schedules.edit', compact('schedule', 'doctors'));
-    }
-
-    public function scheduleUpdate(Request $request, DoctorSchedule $schedule)
-    {
-        // Pengecekan role DIKEMBALIKAN
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        }
-        $request->validate([
-            'doctor_id' => 'required|exists:doctors,id',
-            'date' => 'required|date',
-            'type' => 'required|string|max:255',
-            'description' => 'nullable|string',
-        ]);
-
-        $schedule->update($request->all());
-
-        return redirect()->route('admin.schedules.index')
-                        ->with('success', 'Jadwal dokter berhasil diperbarui.');
-    }
-
-    public function scheduleDestroy(DoctorSchedule $schedule)
-    {
-        // Pengecekan role DIKEMBALIKAN
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        }
-        try {
-            $schedule->delete();
-            return redirect()->route('admin.schedules.index')
-                            ->with('success', 'Jadwal dokter berhasil dihapus.');
-        } catch (\Exception $e) {
-            return redirect()->route('admin.schedules.index')
-                            ->with('error', 'Gagal menghapus jadwal dokter. Mungkin ada data terkait lainnya.');
-        }
-    }
-
-    // Fungsi show() tidak diimplementasikan di sini,
-    // tapi bisa ditambahkan jika Anda perlu halaman detail jadwal.
+    // Fungsi scheduleCreate, scheduleStore, scheduleEdit, scheduleUpdate, scheduleDestroy DIBUANG
 }

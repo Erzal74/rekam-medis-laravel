@@ -14,7 +14,7 @@
             </div>
         @endif
         @if(session('error'))
-             <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 {{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -41,9 +41,11 @@
                             <th>Alamat</th>
                             <th>No. Telepon</th> {{-- Header diubah --}}
                             <th>Jenis Kelamin</th>
-                            <th>No. KK</th>
+                            {{-- Hapus header No. KK --}}
+                            {{-- <th>No. KK</th> --}}
                             <th>Status</th>
-                            <th>Foto KTP</th>
+                            {{-- Hapus header Foto KTP --}}
+                            {{-- <th>Foto KTP</th> --}}
                             <th>Aksi</th>
                         </tr>
                     </thead>
@@ -54,20 +56,22 @@
                                 <td>{{ $p->nama }}</td>
                                 {{-- NIK data cell removed --}}
                                 <td>{{ $p->tempat_lahir }}</td>
-                                <td>{{ $p->tanggal_lahir ? \Carbon\Carbon::parse($p->tanggal_lahir)->isoFormat('D MMMM YYYY') : '-' }}</td> {{-- Format Tanggal --}}
-                                <td>{{ $p->tanggal_berkunjung ? \Carbon\Carbon::parse($p->tanggal_berkunjung)->isoFormat('D MMMM YYYY') : '-' }}</td> {{-- Format Tanggal --}}
+                                <td>{{ $p->tanggal_lahir ? \Carbon\Carbon::parse($p->tanggal_lahir)->isoFormat('D MMMM Y') : '-' }}</td> {{-- Format Tanggal --}}
+                                <td>{{ $p->tanggal_berkunjung ? \Carbon\Carbon::parse($p->tanggal_berkunjung)->isoFormat('D MMMM Y') : '-' }}</td> {{-- Format Tanggal --}}
                                 <td>{{ $p->alamat }}</td>
                                 <td>{{ $p->no_hp }}</td> {{-- Data diubah --}}
                                 <td>{{ $p->jenis_kelamin }}</td>
-                                <td>{{ $p->no_kk }}</td>
+                                {{-- Hapus data cell No. KK --}}
+                                {{-- <td>{{ $p->no_kk }}</td> --}}
                                 <td>{{ $p->status }}</td>
-                                <td>
+                                {{-- Hapus data cell Foto KTP --}}
+                                {{-- <td>
                                     @if($p->foto_ktp)
                                         <img src="{{ asset('storage/foto_ktp/' . $p->foto_ktp) }}" alt="KTP" width="80" class="rounded img-thumbnail">
                                     @else
                                         <span class="badge bg-secondary">Tidak ada</span>
                                     @endif
-                                </td>
+                                </td> --}}
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
                                         <a href="{{ route('admin.pasien.edit', $p->id) }}" class="btn btn-sm btn-warning" title="Edit">
@@ -85,8 +89,8 @@
                             </tr>
                         @empty
                             <tr>
-                                {{-- Colspan updated from 13 to 12 --}}
-                                <td colspan="12" class="text-center">Belum ada data pasien.</td>
+                                {{-- Colspan disesuaikan menjadi 10 (No, Nama, Tempat Lahir, Tanggal Lahir, Tanggal Berkunjung, Alamat, No. Telepon, Jenis Kelamin, Status, Aksi) --}}
+                                <td colspan="10" class="text-center">Belum ada data pasien.</td>
                             </tr>
                         @endforelse
                     </tbody>
@@ -99,6 +103,3 @@
         </div>
     </div>
 @endsection
-
-{{-- Tambahkan ini di layout admin Anda (misal layouts/admin.blade.php) sebelum </body> jika belum ada --}}
-{{-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> --}} {{-- Jika menggunakan Bootstrap 5 JS --}}
