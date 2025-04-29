@@ -9,16 +9,17 @@ use Illuminate\Support\Facades\Auth;
 class DoctorScheduleController extends Controller
 {
     /**
-     * Display a listing of the doctor's schedules.
+     * Display a listing of the resource.
      */
     public function index()
     {
-        $schedules = DoctorSchedule::where('doctor_id', Auth::user()->doctor->id)->latest()->paginate(10);
+        $dokterId = Auth::id();
+        $schedules = DoctorSchedule::where('doctor_id', $dokterId)->latest()->paginate(10); // Ambil jadwal dokter yang login
         return view('dokter.schedules.index', compact('schedules'));
     }
 
     /**
-     * Show the form for creating a new schedule.
+     * Show the form for creating a new resource.
      */
     public function create()
     {
@@ -26,7 +27,7 @@ class DoctorScheduleController extends Controller
     }
 
     /**
-     * Store a newly created schedule in storage.
+     * Store a newly created resource in storage.
      */
     public function store(Request $request)
     {
@@ -36,56 +37,54 @@ class DoctorScheduleController extends Controller
             'description' => 'nullable|string',
         ]);
 
-        DoctorSchedule::create([
-            'doctor_id' => Auth::user()->doctor->id,
-            'date' => $request->date,
-            'type' => $request->type,
-            'description' => $request->description,
-        ]);
+        $dokterId = Auth::id();
+        $request->merge(['doctor_id' => $dokterId]);
+
+        DoctorSchedule::create($request->all());
 
         return redirect()->route('dokter.schedules.index')->with('success', 'Jadwal berhasil ditambahkan.');
     }
 
     /**
-     * Show the form for editing the specified schedule.
+     * Show the form for editing the specified resource.
      */
     public function edit(DoctorSchedule $schedule)
     {
-        // Pastikan dokter hanya bisa mengedit jadwalnya sendiri
-        if ($schedule->doctor_id !== Auth::user()->doctor->id) {
+        // Pastikan dokter yang login memiliki akses ke jadwal ini
+        if ($schedule->doctor_id !== Auth::id()) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit jadwal ini.');
         }
         return view('dokter.schedules.edit', compact('schedule'));
     }
 
     /**
-     * Update the specified schedule in storage.
+     * Update the specified resource in storage.
      */
     public function update(Request $request, DoctorSchedule $schedule)
     {
         $request->validate([
-            'date' => 'required|date',
-            'type' => 'required|string|max:255',
+            'date' => 'nullable|date', // Boleh kosong saat update
+            'type' => 'nullable|string|max:255', // Boleh kosong saat update
             'description' => 'nullable|string',
         ]);
 
-        // Pastikan dokter hanya bisa mengupdate jadwalnya sendiri
-        if ($schedule->doctor_id !== Auth::user()->doctor->id) {
+        // Pastikan dokter yang login memiliki akses ke jadwal ini
+        if ($schedule->doctor_id !== Auth::id()) {
             abort(403, 'Anda tidak memiliki akses untuk mengupdate jadwal ini.');
         }
 
         $schedule->update($request->all());
 
-        return redirect()->route('dokter.schedules.index')->with('success', 'Jadwal berhasil diperbarui.');
+        return redirect()->route('dokter.schedules.index')->with('success', 'Jadwal berhasil diupdate.');
     }
 
     /**
-     * Remove the specified schedule from storage.
+     * Remove the specified resource from storage.
      */
     public function destroy(DoctorSchedule $schedule)
     {
-        // Pastikan dokter hanya bisa menghapus jadwalnya sendiri
-        if ($schedule->doctor_id !== Auth::user()->doctor->id) {
+        // Pastikan dokter yang login memiliki akses ke jadwal ini
+        if ($schedule->doctor_id !== Auth::id()) {
             abort(403, 'Anda tidak memiliki akses untuk menghapus jadwal ini.');
         }
 

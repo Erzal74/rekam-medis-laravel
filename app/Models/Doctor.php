@@ -11,8 +11,7 @@ class Doctor extends Model
 
     protected $fillable = [
         'nama',
-        'user_id', // Tambahkan user_id ke sini
-        // Tambahkan atribut lain yang bisa diisi
+        'user_id',
     ];
 
     public function user()

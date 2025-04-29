@@ -48,7 +48,7 @@
                         {{-- Loop data jadwal --}}
                         @forelse ($schedules as $schedule)
                             <td>{{ $loop->iteration + ($schedules->currentPage() - 1) * $schedules->perPage() }}</td>
-                            <td>{{ $schedule->doctor->name ?? 'N/A' }}</td>
+                            <td>{{ $schedule->doctor->name ?? 'Dr. Erlyn Aprilia' }}</td>
                             <td>{{ $schedule->date->isoFormat('D MMMM Y') }}</td>
                             <td>{{ $schedule->type }}</td>
                             <td>{{ $schedule->description ?? '-' }}</td>

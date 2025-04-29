@@ -48,20 +48,17 @@ Route::middleware('auth')->group(function () {
         Route::get('/schedules', [AdminController::class, 'scheduleIndex'])->name('schedules.index');
     });
 
-    // Grup Rute untuk Dokter
-    Route::middleware(['auth', RoleMiddleware::class . ':dokter'])->prefix('dokter')->name('dokter.')->group(function () {
-        Route::get('/dashboard', [DokterController::class, 'index'])->name('dashboard'); // Menggunakan DokterController
-        Route::get('/jadwal-saya', [DokterController::class, 'jadwalSaya'])->name('schedules.index'); // Menggunakan DokterController
-        Route::get('/catatan-medis', [DokterController::class, 'catatanMedis'])->name('medical_notes.index'); // Menggunakan DokterController
-        Route::get('/rekam-medis', [DokterController::class, 'rekamMedis'])->name('medical_records.index'); // Menggunakan DokterController
+     // Grup Rute untuk Dokter
+        Route::middleware(['auth', RoleMiddleware::class . ':dokter'])->prefix('dokter')->name('dokter.')->group(function () {
+        Route::get('/dashboard', [DokterController::class, 'index'])->name('dashboard');
+        Route::resource('schedules', DoctorScheduleController::class); // Pastikan ini ada
+        Route::get('/catatan-medis', [DokterController::class, 'catatanMedis'])->name('medical_notes.index');
+        Route::get('/rekam-medis', [DokterController::class, 'rekamMedis'])->name('medical_records.index');
 
         // Rute untuk To-Do List
         Route::post('/todo', [DokterController::class, 'storeTodo'])->name('todo.store');
         Route::get('/todo/{todo}/edit', [DokterController::class, 'editTodo'])->name('todo.edit');
         Route::put('/todo/{todo}', [DokterController::class, 'updateTodo'])->name('todo.update');
         Route::delete('/todo/{todo}', [DokterController::class, 'destroyTodo'])->name('todo.destroy');
-
-        // Rute Jadwal Dokter (Dokter bisa mengelola jadwalnya)
-        Route::resource('schedules', DoctorScheduleController::class); // Tetap menggunakan DoctorScheduleController jika logikanya terpisah
     });
 });
