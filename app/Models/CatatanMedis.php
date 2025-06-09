@@ -1,4 +1,4 @@
-<?php // Kunjungan.php
+<?php
 
 namespace App\Models;
 
@@ -6,17 +6,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class Kunjungan extends Model
+class CatatanMedis extends Model
 {
     use HasFactory;
 
-    protected $table = 'kunjungans';
-
     protected $fillable = [
         'pasien_id',
-        'dokter_id',
-        'waktu_kunjungan',
-        'is_baru',
+        'tanggal_pemeriksaan',
+        'keluhan_utama',
+        'diagnosa',
+        'tindakan',
+        'resep',
+        'catatan_tambahan',
+        'dokter_id', // Tambahkan ini
+    ];
+
+    protected $casts = [
+        'tanggal_pemeriksaan' => 'datetime',
     ];
 
     public function pasien(): BelongsTo
@@ -26,6 +32,7 @@ class Kunjungan extends Model
 
     public function dokter(): BelongsTo
     {
-        return $this->belongsTo(User::class, 'dokter_id');
+        return $this->belongsTo(User::class);
     }
+
 }

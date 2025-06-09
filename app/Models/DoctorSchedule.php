@@ -12,7 +12,7 @@ class DoctorSchedule extends Model
 
     protected $fillable = [
         'id',
-        'doctor_id',
+        'doctor_id', // Akan kita ganti menjadi 'user_id' jika sesuai
         'date',
         'type',
         'description',
@@ -23,10 +23,10 @@ class DoctorSchedule extends Model
     ];
 
     /**
-     * Mendefinisikan relasi dengan model Doctor.
+     * Mendefinisikan relasi dengan model User (sebagai pengganti Doctor).
      */
     public function doctor(): BelongsTo
     {
-        return $this->belongsTo(Doctor::class);
+        return $this->belongsTo(User::class, 'doctor_id');
     }
 }

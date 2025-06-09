@@ -19,13 +19,13 @@
         <hr class="my-4">
 
         <h3>Formulir Catatan Medis</h3>
-        <form action="{{ route('dokter.catatan_medis.store') }}" method="POST">
+        <form action="{{ route('dokter.catatan_medis.simpan') }}" method="POST">
             @csrf
             <input type="hidden" name="pasien_id" value="{{ $pasien->id ?? '' }}">
 
             <div class="mb-3">
                 <label for="tanggal_pemeriksaan" class="form-label">Tanggal Pemeriksaan:</label>
-                <input type="date" class="form-control" id="tanggal_pemeriksaan" name="tanggal_pemeriksaan" required>
+                <input type="datetime-local" class="form-control" id="tanggal_pemeriksaan" name="tanggal_pemeriksaan" value="{{ now()->format('Y-m-d\TH:i') }}" required>
             </div>
 
             <div class="mb-3">
@@ -54,7 +54,7 @@
             </div>
 
             <button type="submit" class="btn btn-primary">Simpan Catatan Medis</button>
-            <a href="{{ route('dokter.catatan_medis.index', ['pasien_id' => $pasien->id ?? '']) }}" class="btn btn-secondary">Kembali</a>
+            <a href="{{ route('dokter.catatan_medis', ['pasien' => $pasien->id ?? '']) }}" class="btn btn-secondary">Kembali</a>
         </form>
     </div>
 @endsection

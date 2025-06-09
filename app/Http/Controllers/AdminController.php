@@ -5,37 +5,31 @@ namespace App\Http\Controllers;
 use App\Models\Kunjungan;
 use App\Models\Pasien;
 use App\Models\DoctorSchedule;
-use App\Models\Doctor;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Carbon;
 
-// Pengecekan role DILAKUKAN di DALAM metode controller ini
-// karena tidak ada middleware role spesifik di rute.
 class AdminController extends Controller
 {
     public function index()
     {
-        // Pengecekan role: Pastikan pengguna login DAN memiliki role 'admin'
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
 
-        // Dashboard Logic
         $totalPasien = Pasien::count();
         $totalKunjungan = Kunjungan::count();
 
-        // Riwayat kunjungan (6 bulan terakhir)
+        // Riwayat kunjungan (hanya untuk hari ini)
         $riwayatKunjungan = Kunjungan::select(
-            DB::raw('DATE_FORMAT(waktu_kunjungan, "%Y-%m") as group_key'),
-            DB::raw('DATE_FORMAT(waktu_kunjungan, "%M") as bulan'),
-            DB::raw('count(*) as jumlah')
-        )
-            ->where('waktu_kunjungan', '>=', now()->subMonths(6))
-            ->groupBy('group_key', 'bulan')
-            ->orderBy('group_key')
+                DB::raw('DATE_FORMAT(kunjungans.waktu_kunjungan, "%H:%i") as jam_kunjungan'),
+                'pasiens.nama as nama_pasien',
+                'kunjungans.id'
+            )
+            ->join('pasiens', 'kunjungans.pasien_id', '=', 'pasiens.id')
+            ->whereDate('kunjungans.waktu_kunjungan', today())
+            ->orderBy('kunjungans.waktu_kunjungan', 'desc')
             ->get()
             ->toArray();
 
@@ -59,12 +53,8 @@ class AdminController extends Controller
         ));
     }
 
-    /**
-     * Fungsi-fungsi untuk manajemen Pasien - Cek role DIKEMBALIKAN di setiap fungsi ini
-     */
     public function pasienIndex()
     {
-        // Pengecekan role DIKEMBALIKAN
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
@@ -74,16 +64,17 @@ class AdminController extends Controller
 
     public function pasienCreate()
     {
-        // Pengecekan role DIKEMBALIKAN
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
-        return view('admin.pasien.create');
+
+        $doctors = User::where('role', 'dokter')->get();
+
+        return view('admin.pasien.create', compact('doctors'));
     }
 
     public function pasienStore(Request $request)
     {
-        // Pengecekan role DIKEMBALIKAN
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
@@ -96,26 +87,24 @@ class AdminController extends Controller
             'no_hp' => 'required',
             'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
             'status' => 'nullable',
-            // 'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Hapus validasi foto_ktp
         ]);
 
-        $pasienData = $request->all(); // Ambil semua input
+        $pasien = Pasien::create($request->all());
 
-        // if ($request->hasFile('foto_ktp')) { // Hapus bagian upload foto_ktp
-        //     $fotoKTP = $request->file('foto_ktp');
-        //     $namaFile = time() . '_' . $fotoKTP->getClientOriginalName();
-        //     $fotoKTP->storeAs('public/foto_ktp', $namaFile);
-        //     $pasienData['foto_ktp'] = $namaFile;
-        // }
+        $defaultDokterId = 1;
 
-        Pasien::create($pasienData);
+        Kunjungan::create([
+            'pasien_id' => $pasien->id,
+            'dokter_id' => $defaultDokterId,
+            'waktu_kunjungan' => now(),
+            'is_baru' => true,
+        ]);
 
         return redirect()->route('admin.pasien.index')->with('success', 'Data pasien berhasil ditambahkan.');
     }
 
     public function pasienEdit(Pasien $pasien)
     {
-        // Pengecekan role DIKEMBALIKAN
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
@@ -124,7 +113,6 @@ class AdminController extends Controller
 
     public function pasienUpdate(Request $request, Pasien $pasien)
     {
-        // Pengecekan role DIKEMBALIKAN
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
@@ -137,19 +125,15 @@ class AdminController extends Controller
             'no_hp' => 'required',
             'jenis_kelamin' => 'nullable|in:Laki-laki,Perempuan',
             'status' => 'nullable',
-            // 'foto_ktp' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048', // Hapus validasi foto_ktp
         ]);
 
-        $pasienData = $request->all(); // Ambil semua input
-
-        $pasien->update($pasienData);
+        $pasien->update($request->all());
 
         return redirect()->route('admin.pasien.index')->with('success', 'Data pasien berhasil diperbarui.');
     }
 
     public function pasienDestroy(Pasien $pasien)
     {
-        // Pengecekan role DIKEMBALIKAN
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
@@ -159,18 +143,12 @@ class AdminController extends Controller
         return redirect()->route('admin.pasien.index')->with('success', 'Data pasien berhasil dihapus.');
     }
 
-    /**
-     * Fungsi-fungsi untuk manajemen Jadwal Dokter - Cek role DIKEMBALIKAN di setiap fungsi ini
-     */
     public function scheduleIndex()
     {
         if (!Auth::check() || Auth::user()->role !== 'admin') {
             return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
         }
-        // Ambil semua jadwal dokter, diurutkan terbaru dengan pagination
         $schedules = DoctorSchedule::with('doctor')->latest()->paginate(10);
         return view('admin.schedules.index', compact('schedules'));
     }
-
-    // Fungsi scheduleCreate, scheduleStore, scheduleEdit, scheduleUpdate, scheduleDestroy DIBUANG
 }

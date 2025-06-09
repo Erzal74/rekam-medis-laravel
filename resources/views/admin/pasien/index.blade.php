@@ -7,13 +7,13 @@
 @section('content')
     <div class="container mt-4">
         {{-- Tambahkan ini untuk menampilkan pesan success/error --}}
-        @if(session('success'))
+        @if (session('success'))
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 {{ session('success') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         @endif
-        @if(session('error'))
+        @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 {{ session('error') }}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
@@ -52,12 +52,15 @@
                     <tbody>
                         @forelse ($pasiens as $index => $p)
                             <tr>
-                                <td>{{ $index + 1 + ($pasiens->currentPage() - 1) * $pasiens->perPage() }}</td> {{-- Penomoran untuk pagination --}}
+                                <td>{{ $index + 1 + ($pasiens->currentPage() - 1) * $pasiens->perPage() }}</td>
+                                {{-- Penomoran untuk pagination --}}
                                 <td>{{ $p->nama }}</td>
                                 {{-- NIK data cell removed --}}
                                 <td>{{ $p->tempat_lahir }}</td>
-                                <td>{{ $p->tanggal_lahir ? \Carbon\Carbon::parse($p->tanggal_lahir)->isoFormat('D MMMM Y') : '-' }}</td> {{-- Format Tanggal --}}
-                                <td>{{ $p->tanggal_berkunjung ? \Carbon\Carbon::parse($p->tanggal_berkunjung)->isoFormat('D MMMM Y') : '-' }}</td> {{-- Format Tanggal --}}
+                                <td>{{ $p->tanggal_lahir ? \Carbon\Carbon::parse($p->tanggal_lahir)->isoFormat('D MMMM Y') : '-' }}
+                                </td> {{-- Format Tanggal --}}
+                                <td>{{ $p->tanggal_berkunjung ? \Carbon\Carbon::parse($p->tanggal_berkunjung)->isoFormat('D MMMM Y') : '-' }}
+                                </td> {{-- Format Tanggal --}}
                                 <td>{{ $p->alamat }}</td>
                                 <td>{{ $p->no_hp }}</td> {{-- Data diubah --}}
                                 <td>{{ $p->jenis_kelamin }}</td>
@@ -66,7 +69,7 @@
                                 <td>{{ $p->status }}</td>
                                 {{-- Hapus data cell Foto KTP --}}
                                 {{-- <td>
-                                    @if($p->foto_ktp)
+                                    @if ($p->foto_ktp)
                                         <img src="{{ asset('storage/foto_ktp/' . $p->foto_ktp) }}" alt="KTP" width="80" class="rounded img-thumbnail">
                                     @else
                                         <span class="badge bg-secondary">Tidak ada</span>
@@ -74,13 +77,17 @@
                                 </td> --}}
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <a href="{{ route('admin.pasien.edit', $p->id) }}" class="btn btn-sm btn-warning" title="Edit">
+                                        <a href="{{ route('admin.pasien.edit', $p->id) }}" class="btn btn-sm btn-warning"
+                                            title="Edit">
                                             <i class="fas fa-edit"></i>
                                         </a>
-                                        <form action="{{ route('admin.pasien.destroy', $p->id) }}" method="POST" class="d-inline">
+                                        <form action="{{ route('admin.pasien.destroy', $p->id) }}" method="POST"
+                                            class="d-inline">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" onclick="return confirm('Yakin hapus data pasien {{ $p->nama }}?')" class="btn btn-sm btn-danger" title="Hapus">
+                                            <button type="submit"
+                                                onclick="return confirm('Yakin hapus data pasien {{ $p->nama }}?')"
+                                                class="btn btn-sm btn-danger" title="Hapus">
                                                 <i class="fas fa-trash"></i>
                                             </button>
                                         </form>

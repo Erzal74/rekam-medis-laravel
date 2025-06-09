@@ -8,9 +8,6 @@ use Illuminate\Support\Facades\Auth;
 
 class DoctorScheduleController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
     public function index()
     {
         $dokterId = Auth::id();

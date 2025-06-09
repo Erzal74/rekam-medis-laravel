@@ -22,12 +22,6 @@
         @endif
 
         <h3 class="mb-4">Daftar Jadwal Dokter</h3>
-        {{-- Tombol Tambah Jadwal DIHAPUS --}}
-        {{-- <div class="d-flex justify-content-end mb-3">
-            <a href="{{ route('admin.schedules.create') }}" class="btn btn-primary">
-                <i class="fas fa-plus"></i> Tambah Jadwal
-            </a>
-        </div> --}}
 
         <div class="card shadow-sm rounded-4">
             <div class="card-body table-responsive">
@@ -48,7 +42,7 @@
                         {{-- Loop data jadwal --}}
                         @forelse ($schedules as $schedule)
                             <td>{{ $loop->iteration + ($schedules->currentPage() - 1) * $schedules->perPage() }}</td>
-                            <td>{{ $schedule->doctor->name ?? 'Dr. Erlyn Aprilia' }}</td>
+                            <td>{{ $schedule->user->name ?? 'Dr. Erlyn Aprilia' }}</td>
                             <td>{{ $schedule->date->isoFormat('D MMMM Y') }}</td>
                             <td>{{ $schedule->type }}</td>
                             <td>{{ $schedule->description ?? '-' }}</td>

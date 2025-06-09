@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('doctor_schedules', function (Blueprint $table) {
+        Schema::create('rekam_medis', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('doctor_id')->constrained('users')->onDelete('cascade'); // Link to doctors table
-            $table->date('date');
-            $table->string('type'); // e.g., 'Cuti', 'Rapat', 'Lainnya'
-            $table->text('description')->nullable(); // Details about the event
+            $table->string('nomor_rm')->unique();
+            $table->foreignId('pasien_id')->constrained('pasiens')->onDelete('cascade');
+            $table->date('tanggal_pembuatan')->nullable();
+            $table->string('status')->default('aktif');
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('doctor_schedules');
+        Schema::dropIfExists('rekam_medis');
     }
 };
