@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>@yield('title', 'Dashboard Admin')</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+        integrity="sha512-9usAa10IRO0HhonpyAIVpjrylPvoDwiPUiKdWk5t3PyolY1cOd4DSE0Ga+ri4AuTroPR5aQvXU9xC6qOPnzFeg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -51,20 +54,22 @@
             flex-grow: 1;
             padding: 20px;
             background-color: #ecf0f1;
-            position: relative; /* Untuk menampung pop-up secara relatif */
+            position: relative;
+            /* Untuk menampung pop-up secara relatif */
         }
 
         .header {
             background-color: #3498db;
             color: white;
             padding: 15px 20px;
-            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, .1);
             display: flex;
             justify-content: space-between;
             align-items: center;
             margin-bottom: 20px;
             border-radius: 5px;
-            z-index: 10; /* Pastikan header di atas overlay */
+            z-index: 10;
+            /* Pastikan header di atas overlay */
         }
 
         .header h2 {
@@ -83,7 +88,8 @@
             text-decoration: none;
             font-size: 14px;
             transition: background-color 0.3s ease;
-            z-index: 11; /* Pastikan tombol logout di atas pop-up */
+            z-index: 11;
+            /* Pastikan tombol logout di atas pop-up */
         }
 
         .header .btn-logout:hover {
@@ -96,12 +102,15 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(0, 0, 0, 0.5); /* Efek blur di belakang */
+            background-color: rgba(0, 0, 0, 0.5);
+            /* Efek blur di belakang */
             display: flex;
             justify-content: center;
             align-items: center;
-            z-index: 50; /* Di atas konten, di bawah header */
-            display: none; /* Sembunyikan overlay secara default */
+            z-index: 50;
+            /* Di atas konten, di bawah header */
+            display: none;
+            /* Sembunyikan overlay secara default */
         }
 
         .popup {
@@ -110,7 +119,8 @@
             border-radius: 8px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
             text-align: center;
-            width: 300px; /* Sesuaikan lebar pop-up */
+            width: 300px;
+            /* Sesuaikan lebar pop-up */
             position: relative;
         }
 
@@ -146,10 +156,11 @@
         .content {
             background-color: #fff;
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
             margin-bottom: 20px;
             border-radius: 5px;
-            z-index: 1; /* Di bawah pop-up dan overlay */
+            z-index: 1;
+            /* Di bawah pop-up dan overlay */
         }
 
         .info-box {
@@ -184,7 +195,7 @@
         .chart-container {
             background-color: #fff;
             padding: 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, .1);
             border-radius: 5px;
             margin-bottom: 20px;
         }
@@ -198,27 +209,22 @@
         }
     </style>
 </head>
+
 <body>
     <div class="sidebar">
         <h5>Menu</h5>
-        <a href="{{ route('admin.dashboard') }}" class="nav-link"><i class="fas fa-home me-2"></i> Home</a>
-        <a href="{{ route('admin.pasien.index') }}" class="nav-link"><i class="fas fa-user-plus me-2"></i> Data Pasien</a>
+        <a href="{{ route('admin.dashboard') }}" class="nav-link"><i class="fas fa-home me-2"></i> Dashboard</a>
+        <a href="{{ route('admin.pasien.index') }}" class="nav-link"><i class="fas fa-user-plus me-2"></i> Data
+            Pasien</a>
         {{-- PERBAIKAN DI SINI: Link mengarah ke rute jadwal dokter admin --}}
-        <a href="{{ route('admin.schedules.index') }}" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Jadwal Dokter </a>
+        <a href="{{ route('admin.schedules.index') }}" class="nav-link"><i class="fas fa-calendar-alt me-2"></i> Jadwal
+            Dokter </a>
     </div>
 
     <div class="content-wrapper">
         <div class="header">
             <h2>@yield('header')</h2>
             <a href="/logout" class="btn-logout">Logout</a>
-        </div>
-
-        <div id="popupOverlay" class="overlay" style="display: none;">
-            <div class="popup">
-                <button class="popup-close-btn" onclick="closePopup()">&times;</button>
-                <h4>Selamat Datang, Admin!</h4>
-                <p>Anda berhasil masuk ke Dashboard Admin. Selamat bekerja!</p>
-            </div>
         </div>
 
         <div class="content">
@@ -250,4 +256,5 @@
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

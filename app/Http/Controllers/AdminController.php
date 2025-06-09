@@ -53,20 +53,12 @@ class AdminController extends Controller
 
     public function pasienIndex()
     {
-        // Kode otentikasi ini dihapus, sudah di middleware
-        // if (!Auth::check() || Auth::user()->role !== 'admin') {
-        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        // }
         $pasiens = Pasien::latest()->paginate(10);
         return view('admin.pasien.index', compact('pasiens'));
     }
 
     public function pasienCreate()
     {
-        // Kode otentikasi ini dihapus, sudah di middleware
-        // if (!Auth::check() || Auth::user()->role !== 'admin') {
-        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        // }
 
         $doctors = User::where('role', 'dokter')->get();
 
@@ -75,10 +67,6 @@ class AdminController extends Controller
 
     public function pasienStore(Request $request)
     {
-        // Kode otentikasi ini dihapus, sudah di middleware
-        // if (!Auth::check() || Auth::user()->role !== 'admin') {
-        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        // }
         $request->validate([
             'nama' => 'required',
             'tempat_lahir' => 'nullable',
@@ -106,19 +94,11 @@ class AdminController extends Controller
 
     public function pasienEdit(Pasien $pasien)
     {
-        // Kode otentikasi ini dihapus, sudah di middleware
-        // if (!Auth::check() || Auth::user()->role !== 'admin') {
-        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        // }
         return view('admin.pasien.edit', compact('pasien'));
     }
 
     public function pasienUpdate(Request $request, Pasien $pasien)
     {
-        // Kode otentikasi ini dihapus, sudah di middleware
-        // if (!Auth::check() || Auth::user()->role !== 'admin') {
-        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        // }
         $request->validate([
             'nama' => 'required',
             'tempat_lahir' => 'nullable',
@@ -137,10 +117,6 @@ class AdminController extends Controller
 
     public function pasienDestroy(Pasien $pasien)
     {
-        // Kode otentikasi ini dihapus, sudah di middleware
-        // if (!Auth::check() || Auth::user()->role !== 'admin') {
-        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        // }
 
         $pasien->delete();
 
@@ -149,10 +125,6 @@ class AdminController extends Controller
 
     public function scheduleIndex()
     {
-        // Kode otentikasi ini dihapus, sudah di middleware
-        // if (!Auth::check() || Auth::user()->role !== 'admin') {
-        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        // }
         $schedules = DoctorSchedule::with('doctor')->latest()->paginate(10);
         return view('admin.schedules.index', compact('schedules'));
     }

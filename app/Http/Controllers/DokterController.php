@@ -17,11 +17,6 @@ use Illuminate\Support\Facades\DB;
 
 class DokterController extends Controller
 {
-    // Hapus konstruktor jika Anda menggunakan middleware di routes/web.php
-    // public function __construct() {
-    //     $this->middleware('auth'); // Ini sudah dihandle oleh routes/web.php
-    //     $this->middleware('role:dokter'); // Ini juga sudah dihandle oleh routes/web.php
-    // }
 
     public function index()
     {
@@ -55,16 +50,8 @@ class DokterController extends Controller
         ));
     }
 
-    // Perhatikan: pasienStore di DokterController ini terlihat seperti duplikasi dari AdminController.
-    // Jika hanya admin yang bisa menambahkan pasien, hapus fungsi ini dari DokterController.
-    // Atau jika dokter juga bisa, pastikan role check sesuai di middleware.
     public function pasienStore(Request $request)
     {
-        // Kode otentikasi ini dihapus, sudah di middleware
-        // if (!Auth::check() || Auth::user()->role !== 'admin') { // Perhatikan: ini memeriksa role admin di dokter controller
-        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        // }
-        // ... (sisanya sama)
         $request->validate([
             'nama' => 'required',
             'tempat_lahir' => 'nullable',
@@ -325,9 +312,6 @@ class DokterController extends Controller
         return view('dokter.odontograms.index', compact('odontograms'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function createOdontogram()
     {
         $pasiens = Pasien::all();
@@ -341,6 +325,14 @@ class DokterController extends Controller
         'tanggal_pemeriksaan' => 'required|date',
         'nomor_gigi' => 'required',
         'kondisi_gigi' => 'required',
+        'occlusi' => 'nullable|string',
+        'torus_palatinus' => 'nullable|string',
+        'torus_mandibularis' => 'nullable|string',
+        'palatum' => 'nullable|string',
+        'diastema' => 'nullable|string',
+        'gigi_anomali' => 'nullable|string',
+        'lain_lain' => 'nullable|string',
+        'jumlah_foto_rontgen' => 'nullable|integer',
     ]);
 
     $odontogram = new Odontogram();
@@ -362,7 +354,7 @@ class DokterController extends Controller
     // Cari atau buat rekam medis pasien
     $rekamMedis = RekamMedis::firstOrCreate(
         ['pasien_id' => $request->input('pasien_id')],
-        ['tanggal_pembuatan' => now(), 'status' => 'aktif', 'nomor_rm' => 'RM-' . time()]   // Generate nomor_rm
+        ['tanggal_pembuatan' => now(), 'status' => 'aktif', 'nomor_rm' => 'RM-' . time()]
     );
 
     // Update informasi odontogram di rekam medis
@@ -378,15 +370,11 @@ class DokterController extends Controller
         'gigi_anomali' => $request->input('gigi_anomali'),
         'lain_lain' => $request->input('lain_lain'),
         'jumlah_foto_rontgen' => $request->input('jumlah_foto_rontgen'),
-        // Update kolom lain yang relevan
     ]);
 
     return redirect()->route('dokter.odontograms.index')->with('success', 'Odontogram berhasil disimpan dan informasi gigi telah ditambahkan ke rekam medis pasien.');
     }
 
-    /**
-     * Display the specified resource.
-     */
     public function showOdontogram(Odontogram $odontogram)
     {
         if ($odontogram->dokter_id != Auth::id()) {
@@ -395,18 +383,14 @@ class DokterController extends Controller
         return view('dokter.odontograms.show', compact('odontogram'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+
     public function editOdontogram($id)
     {
         $odontogram = Odontogram::find($id);
 
         if (!$odontogram) {
-            // Handle jika odontogram tidak ditemukan, misalnya redirect ke halaman index dengan pesan error
             return redirect()->route('dokter.odontograms.index')->with('error', 'Data odontogram tidak ditemukan.');
         }
-        // Pastikan dokter hanya bisa mengedit odontogramnya sendiri
         if ($odontogram->dokter_id !== Auth::id()) {
             abort(403, 'Anda tidak memiliki akses untuk mengedit odontogram ini.');
         }
@@ -414,45 +398,46 @@ class DokterController extends Controller
         $pasiens = Pasien::all();
         return view('dokter.odontograms.edit', compact('odontogram', 'pasiens'));
     }
-    /**
-     * Update the specified resource in storage.
-     */
+
     public function updateOdontogram(Request $request, Odontogram $odontogram)
     {
-        // Pastikan dokter hanya bisa mengupdate odontogramnya sendiri
-        if ($odontogram->dokter_id !== Auth::id()) { // Gunakan Auth::id() langsung
-            abort(403, 'Anda tidak memiliki akses untuk mengupdate odontogram ini.');
-        }
-        $request->validate([
-            'tanggal_pemeriksaan' => 'required|date',
-            'nomor_gigi' => 'required',
-            'kondisi_gigi' => 'required',
-            // Tambahkan validasi untuk kolom lain
-        ]);
+    if ($odontogram->dokter_id !== Auth::id()) {
+        abort(403, 'Anda tidak memiliki akses untuk mengupdate odontogram ini.');
+    }
+    $request->validate([
+        'tanggal_pemeriksaan' => 'required|date',
+        'nomor_gigi' => 'required',
+        'kondisi_gigi' => 'required',
+        'occlusi' => 'nullable|string',
+        'torus_palatinus' => 'nullable|string',
+        'torus_mandibularis' => 'nullable|string',
+        'palatum' => 'nullable|string',
+        'diastema' => 'nullable|string',
+        'gigi_anomali' => 'nullable|string',
+        'lain_lain' => 'nullable|string',
+        'jumlah_foto_rontgen' => 'nullable|integer',
+    ]);
 
-        $odontogram->tanggal_pemeriksaan = $request->input('tanggal_pemeriksaan');
-        $odontogram->nomor_gigi = $request->input('nomor_gigi');
-        $odontogram->kondisi_gigi = $request->input('kondisi_gigi');
-        $odontogram->occlusi = $request->input('occlusi');
-        $odontogram->torus_palatinus = $request->input('torus_palatinus');
-        $odontogram->torus_mandibularis = $request->input('torus_mandibularis');
-        $odontogram->palatum = $request->input('palatum');
-        $odontogram->diastema = $request->input('diastema');
-        $odontogram->gigi_anomali = $request->input('gigi_anomali');
-        $odontogram->lain_lain = $request->input('lain_lain');
-        $odontogram->jumlah_foto_rontgen = $request->input('jumlah_foto_rontgen');
-        $odontogram->save();
+    $odontogram->tanggal_pemeriksaan = $request->input('tanggal_pemeriksaan');
+    $odontogram->nomor_gigi = $request->input('nomor_gigi');
+    $odontogram->kondisi_gigi = $request->input('kondisi_gigi');
+    $odontogram->occlusi = $request->input('occlusi');
+    $odontogram->torus_palatinus = $request->input('torus_palatinus');
+    $odontogram->torus_mandibularis = $request->input('torus_mandibularis');
+    $odontogram->palatum = $request->input('palatum');
+    $odontogram->diastema = $request->input('diastema');
+    $odontogram->gigi_anomali = $request->input('gigi_anomali');
+    $odontogram->lain_lain = $request->input('lain_lain');
+    $odontogram->jumlah_foto_rontgen = $request->input('jumlah_foto_rontgen');
+    $odontogram->save();
 
-        return redirect()->route('dokter.odontograms.index')->with('success', 'Odontogram berhasil diupdate.');
+    return redirect()->route('dokter.odontograms.index')->with('success', 'Odontogram berhasil diupdate.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroyOdontogram(Odontogram $odontogram)
     {
         if ($odontogram->dokter_id != Auth::id()) {
-            abort(403); // Hanya dokter yang membuat yang bisa menghapus
+            abort(403);
         }
         $odontogram->delete();
         return redirect()->route('dokter.odontograms.index')->with('success', 'Odontogram berhasil dihapus.');
