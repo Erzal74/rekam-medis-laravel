@@ -17,8 +17,15 @@ use Illuminate\Support\Facades\DB;
 
 class DokterController extends Controller
 {
+    // Hapus konstruktor jika Anda menggunakan middleware di routes/web.php
+    // public function __construct() {
+    //     $this->middleware('auth'); // Ini sudah dihandle oleh routes/web.php
+    //     $this->middleware('role:dokter'); // Ini juga sudah dihandle oleh routes/web.php
+    // }
+
     public function index()
     {
+        // Cek autentikasi dan role sudah ditangani oleh middleware di routes/web.php
         $user = Auth::user();
         $hariIni = Carbon::today();
 
@@ -48,11 +55,16 @@ class DokterController extends Controller
         ));
     }
 
+    // Perhatikan: pasienStore di DokterController ini terlihat seperti duplikasi dari AdminController.
+    // Jika hanya admin yang bisa menambahkan pasien, hapus fungsi ini dari DokterController.
+    // Atau jika dokter juga bisa, pastikan role check sesuai di middleware.
     public function pasienStore(Request $request)
     {
-        if (!Auth::check() || Auth::user()->role !== 'admin') {
-            return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
-        }
+        // Kode otentikasi ini dihapus, sudah di middleware
+        // if (!Auth::check() || Auth::user()->role !== 'admin') { // Perhatikan: ini memeriksa role admin di dokter controller
+        //     return redirect('/home')->with('error', 'Anda tidak memiliki akses ke halaman admin.');
+        // }
+        // ... (sisanya sama)
         $request->validate([
             'nama' => 'required',
             'tempat_lahir' => 'nullable',
@@ -72,7 +84,7 @@ class DokterController extends Controller
 
         // Jika tidak ada dokter yang dipilih, Anda bisa menggunakan ID default atau logika lain
         if (!$dokterIdUntukKunjungan) {
-            $dokterIdUntukKunjungan = Auth::id(); // Contoh: gunakan ID admin yang membuat pasien
+            $dokterIdUntukKunjungan = Auth::id(); // Contoh: gunakan ID dokter yang sedang login
             // ATAU
             // $dokterIdUntukKunjungan = 1; // Contoh: gunakan ID dokter default
         }
@@ -84,7 +96,8 @@ class DokterController extends Controller
             'is_baru' => true, // Atau sesuaikan logika Anda
         ]);
 
-        return redirect()->route('admin.pasien.index')->with('success', 'Data pasien berhasil ditambahkan.');
+        // Perbaikan redirect: seharusnya ke rute dokter atau halaman pasien dokter
+        return redirect()->route('dokter.dashboard')->with('success', 'Data pasien berhasil ditambahkan.');
     }
 
     public function jadwalSaya()
@@ -191,16 +204,28 @@ class DokterController extends Controller
 
     public function showCatatanMedis(CatatanMedis $catatanMedis)
     {
+        // Pastikan dokter hanya bisa melihat catatan medisnya sendiri
+        if ($catatanMedis->dokter_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk melihat catatan medis ini.');
+        }
         return view('dokter.catatan_medis.show', compact('catatanMedis'));
     }
 
     public function editCatatanMedis(CatatanMedis $catatanMedis)
     {
+        // Pastikan dokter hanya bisa mengedit catatan medisnya sendiri
+        if ($catatanMedis->dokter_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit catatan medis ini.');
+        }
         return view('dokter.catatan_medis.edit', compact('catatanMedis'));
     }
 
     public function updateCatatanMedis(Request $request, CatatanMedis $catatanMedis)
     {
+        // Pastikan dokter hanya bisa mengupdate catatan medisnya sendiri
+        if ($catatanMedis->dokter_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengupdate catatan medis ini.');
+        }
         $request->validate([
             'tanggal_pemeriksaan' => 'required|date',
             'keluhan_utama' => 'required',
@@ -222,6 +247,10 @@ class DokterController extends Controller
 
     public function destroyCatatanMedis(CatatanMedis $catatanMedis)
     {
+        // Pastikan dokter hanya bisa menghapus catatan medisnya sendiri
+        if ($catatanMedis->dokter_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk menghapus catatan medis ini.');
+        }
         $catatanMedis->delete();
         return redirect()->route('dokter.catatan_medis.index')->with('success', 'Catatan Medis Berhasil dihapus');
     }
@@ -245,11 +274,15 @@ class DokterController extends Controller
             return redirect()->route('dokter.rekam_medis.index')->with('error', 'Pasien dengan nama tersebut tidak ditemukan.');
         }
 
+        // Pastikan hanya menampilkan catatan medis yang terkait dengan dokter yang sedang login
         $catatanMedis = CatatanMedis::where('pasien_id', $pasien->id)
+            ->where('dokter_id', Auth::id()) // Tambahkan filter dokter_id
             ->orderBy('tanggal_pemeriksaan', 'desc')
             ->get();
 
+        // Pastikan hanya menampilkan odontogram yang terkait dengan dokter yang sedang login
         $odontograms = Odontogram::where('pasien_id', $pasien->id)
+            ->where('dokter_id', Auth::id()) // Tambahkan filter dokter_id
             ->orderBy('tanggal_pemeriksaan', 'desc')
             ->get();
 
@@ -259,8 +292,12 @@ class DokterController extends Controller
     public function cetakPdfRekamMedis($pasienId)
     {
     $pasien = Pasien::findOrFail($pasienId);
-    $catatanMedis = CatatanMedis::where('pasien_id', $pasienId)->orderBy('tanggal_pemeriksaan', 'desc')->get();
-    $odontograms = Odontogram::where('pasien_id', $pasienId)->orderBy('tanggal_pemeriksaan', 'desc')->get();
+    $catatanMedis = CatatanMedis::where('pasien_id', $pasienId)
+        ->where('dokter_id', Auth::id()) // Filter by logged in doctor
+        ->orderBy('tanggal_pemeriksaan', 'desc')->get();
+    $odontograms = Odontogram::where('pasien_id', $pasienId)
+        ->where('dokter_id', Auth::id()) // Filter by logged in doctor
+        ->orderBy('tanggal_pemeriksaan', 'desc')->get();
 
     // Path ke file gambar (pastikan ini benar)
     $imagePath = public_path('images/odontogram_chart.jpeg');
@@ -325,7 +362,7 @@ class DokterController extends Controller
     // Cari atau buat rekam medis pasien
     $rekamMedis = RekamMedis::firstOrCreate(
         ['pasien_id' => $request->input('pasien_id')],
-        ['tanggal_pembuatan' => now(), 'status' => 'aktif', 'nomor_rm' => 'RM-' . time()]  // Generate nomor_rm
+        ['tanggal_pembuatan' => now(), 'status' => 'aktif', 'nomor_rm' => 'RM-' . time()]   // Generate nomor_rm
     );
 
     // Update informasi odontogram di rekam medis
@@ -369,6 +406,10 @@ class DokterController extends Controller
             // Handle jika odontogram tidak ditemukan, misalnya redirect ke halaman index dengan pesan error
             return redirect()->route('dokter.odontograms.index')->with('error', 'Data odontogram tidak ditemukan.');
         }
+        // Pastikan dokter hanya bisa mengedit odontogramnya sendiri
+        if ($odontogram->dokter_id !== Auth::id()) {
+            abort(403, 'Anda tidak memiliki akses untuk mengedit odontogram ini.');
+        }
 
         $pasiens = Pasien::all();
         return view('dokter.odontograms.edit', compact('odontogram', 'pasiens'));
@@ -378,8 +419,9 @@ class DokterController extends Controller
      */
     public function updateOdontogram(Request $request, Odontogram $odontogram)
     {
-        if (Auth::user()->dokter && $odontogram->dokter_id != Auth::user()->dokter->id) {
-            abort(403); // Hanya dokter yang membuat yang bisa mengupdate
+        // Pastikan dokter hanya bisa mengupdate odontogramnya sendiri
+        if ($odontogram->dokter_id !== Auth::id()) { // Gunakan Auth::id() langsung
+            abort(403, 'Anda tidak memiliki akses untuk mengupdate odontogram ini.');
         }
         $request->validate([
             'tanggal_pemeriksaan' => 'required|date',

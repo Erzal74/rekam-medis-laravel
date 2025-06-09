@@ -4,68 +4,68 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash; // Tambahkan ini jika Anda menggunakan Hash::check di sini
-use App\Models\User; // Tambahkan ini jika Anda mengambil user berdasarkan username secara manual
+use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Http\Controllers\Controller;
 
 class AuthController extends Controller
 {
+    public function __construct()
+    {
+        $this->middleware('guest')->except('logout');
+    }
+
     public function showLoginForm()
     {
-        return view('login'); // Menampilkan halaman login (pastikan ada file: resources/views/login.blade.php)
+        return view('login');
     }
 
     public function login(Request $request)
     {
         $request->validate([
-            'username' => 'required',
-            'password' => 'required',
+            'username' => 'required|string',
+            'password' => 'required|string',
         ], [
             'username.required' => 'Username wajib diisi',
             'password.required' => 'Password wajib diisi',
         ]);
 
-        // Opsional: Jika Anda ingin validasi username/password secara manual seperti di ControllerSessions
-        // Jika tidak, biarkan Auth::attempt yang menanganinya
-        $user = User::where('username', $request->username)->first();
+        $credentials = $request->only('username', 'password');
 
-        if (!$user) {
-            return redirect()->route('login') // Arahkan ke rute login
-                ->withErrors(['username' => 'Username tidak ditemukan.'])
-                ->withInput();
-        }
-
-        if (!Hash::check($request->password, $user->password)) {
-            return redirect()->route('login') // Arahkan ke rute login
-                ->withErrors(['password' => 'Password salah.'])
-                ->withInput();
-        }
-
-        // --- Bagian Penting untuk Autentikasi dan Redirect ---
-        if (Auth::attempt(['username' => $request->username, 'password' => $request->password])) {
+        if (Auth::attempt($credentials)) {
             $user = Auth::user();
 
+            // Regenerate session ID to prevent session fixation attacks
+            $request->session()->regenerate();
+
             if ($user->role === 'admin') {
-                // Set flash session untuk popup welcome
-                $request->session()->flash('show_welcome_popup', true); // <--- INI PENTING
+                $request->session()->flash('show_welcome_popup', true);
                 return redirect()->route('admin.dashboard');
             } elseif ($user->role === 'dokter') {
-                // Untuk dokter, mungkin tidak perlu popup, atau bisa ditambahkan jika mau
-                // $request->session()->flash('show_welcome_popup_dokter', true); // Contoh untuk dokter
+                $request->session()->flash('show_welcome_popup', true);
                 return redirect()->route('dokter.dashboard');
             } else {
                 Auth::logout();
+                $request->session()->invalidate(); // Invalidate session
+                $request->session()->regenerateToken(); // Regenerate CSRF token
                 return redirect()->route('login')->with('error', 'Role pengguna tidak dikenali.');
             }
         }
 
-        // Ini adalah fallback jika Auth::attempt gagal (misalnya karena kredensial tidak cocok
-        // meskipun validasi manual di atas sudah dilewati, yang seharusnya jarang terjadi)
-        return redirect()->route('login')->with('error', 'Username atau password salah.');
+        // Jika Auth::attempt gagal (kredensial tidak cocok)
+        return back()->withErrors([
+            'username' => 'Username atau password salah.',
+        ])->withInput($request->only('username')); // Agar username tidak hilang setelah error
     }
 
-    public function logout()
+    public function logout(Request $request)
     {
-        Auth::logout();
-        return redirect()->route('login')->with('success', 'Berhasil logout.');
+        Auth::logout(); // Logout pengguna
+
+        $request->session()->invalidate(); // Menghancurkan semua data sesi
+        $request->session()->regenerateToken(); // Membuat token CSRF baru untuk keamanan
+
+        // Redirect ke halaman login dengan pesan sukses (opsional)
+        return redirect()->route('login')->with('success', 'Anda berhasil logout.');
     }
 }
