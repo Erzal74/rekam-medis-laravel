@@ -21,15 +21,14 @@ class AdminController extends Controller
 
         // Riwayat kunjungan (hanya untuk hari ini)
         $riwayatKunjungan = Kunjungan::select(
-                DB::raw('DATE_FORMAT(kunjungans.waktu_kunjungan, "%H:%i") as jam_kunjungan'),
-                'pasiens.nama as nama_pasien',
-                'kunjungans.id'
-            )
+            DB::raw('DATE_FORMAT(kunjungans.waktu_kunjungan, "%H:%i") as jam_kunjungan'),
+            'pasiens.nama as nama_pasien',
+            DB::raw('ROW_NUMBER() OVER (ORDER BY kunjungans.waktu_kunjungan ASC) as id_kunjungan_harian')
+        )
             ->join('pasiens', 'kunjungans.pasien_id', '=', 'pasiens.id')
             ->whereDate('kunjungans.waktu_kunjungan', today())
             ->orderBy('kunjungans.waktu_kunjungan', 'desc')
-            ->get()
-            ->toArray();
+            ->get();
 
         // Grafik kunjungan (4 bulan terakhir)
         $grafikKunjungan = Kunjungan::select(
@@ -46,7 +45,7 @@ class AdminController extends Controller
         return view('admin.dashboard_content', compact(
             'totalPasien',
             'totalKunjungan',
-            'riwayatKunjungan',
+            'riwayatKunjungan', // Ini sekarang adalah Collection
             'grafikKunjungan'
         ));
     }

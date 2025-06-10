@@ -63,41 +63,39 @@
             </div>
         </div>
         {{-- Riwayat Kunjungan Hari Ini (Tabel) --}}
-        <div class="col-lg-6 mb-4">
-            <div class="card card-modern shadow-sm border-0 h-100">
-                <div class="card-header bg-white border-0 pb-0 pt-4 px-4">
-                    <h5 class="mb-0 fw-semibold text-dark">Riwayat Kunjungan Hari Ini</h5>
-                </div>
-                <div class="card-body pt-3 px-4">
-                    @if (count($riwayatKunjungan) > 0)
-                        <div class="table-responsive" style="max-height: 380px; overflow-y: auto;">
-                            <table class="table table-hover table-striped mb-0 small">
-                                <thead class="bg-white sticky-top">
-                                    <tr>
-                                        <th class="py-2">#</th>
-                                        <th class="py-2">Waktu</th>
-                                        <th class="py-2">Nama Pasien</th>
-                                        <th class="py-2">ID Kunjungan</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($riwayatKunjungan as $key => $kunjungan)
-                                        <tr>
-                                            <td class="py-2">{{ $key + 1 }}</td>
-                                            <td class="py-2">{{ $kunjungan['jam_kunjungan'] }}</td>
-                                            <td class="py-2">{{ $kunjungan['nama_pasien'] ?? 'N/A' }}</td>
-                                            <td class="py-2">{{ $kunjungan['id'] }}</td>
-                                        </tr>
-                                    @endforeach
-                                </tbody>
-                            </table>
-                        </div>
-                    @else
-                        <p class="text-center text-muted py-4">Belum ada kunjungan hari ini.</p>
-                    @endif
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header">Riwayat Kunjungan Hari Ini</div>
+                <div class="card-body">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>No</th>
+                                <th>Waktu</th>
+                                <th>Nama Pasien</th>
+                                <th>ID Kunjungan</th> {{-- Header kolom --}}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse($riwayatKunjungan as $kunjungan)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td> {{-- Nomor urut di tabel --}}
+                                    <td>{{ $kunjungan->jam_kunjungan }}</td>
+                                    <td>{{ $kunjungan->nama_pasien }}</td>
+                                    <td>{{ $kunjungan->id_kunjungan_harian }}</td> {{-- <--- GANTI INI --}}
+                                </tr>
+                            @empty
+                                <tr>
+                                    <td colspan="4">Tidak ada kunjungan hari ini.</td>
+                                </tr>
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
+    </div>
+    </div>
     </div>
 
     {{-- Bootstrap Modal untuk Pop-up Selamat Datang --}}
